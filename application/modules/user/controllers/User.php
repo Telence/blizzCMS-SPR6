@@ -102,7 +102,7 @@ class User extends MX_Controller {
     }
 
 
-
+    /*
     public function register()
     {
         if (!$this->wowgeneral->getMaintenance())
@@ -130,6 +130,60 @@ class User extends MX_Controller {
         $password = $this->input->post('password');
         $repassword = $this->input->post('repassword');
         echo $this->user_model->insertRegister($username, $email, $password, $repassword);
+    }
+    
+    */
+
+
+    public function register()
+    {
+        if (!$this->wowgeneral->getMaintenance())
+        redirect(base_url('maintenance'),'refresh');
+
+        if (!$this->wowmodule->getRegisterStatus())
+            redirect(base_url(),'refresh');
+
+        if ($this->wowauth->isLogged())
+            redirect(base_url(), 'refresh');
+
+
+        if ($this->input->method() == 'post')
+        {
+            $this->form_validation->set_rules('nickname', 'Nickname', 'trim|required|alpha_numeric|max_length[16]');
+			$this->form_validation->set_rules('username', 'Username', 'trim|required|alpha_numeric|min_length[3]|max_length[16]|differs[nickname]');
+			$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
+			$this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
+			$this->form_validation->set_rules('confirm_password', 'Confirm password', 'trim|required|min_length[8]|matches[password]');
+			// $this->form_validation->set_rules('terms', 'Terms and conditions', 'trim|required');
+
+            if ($this->form_validation->run() == FALSE)
+			{
+                redirect(base_url('register'), 'refresh');
+			}
+            else
+            {
+                $nickname   = $this->input->post('nickname', TRUE);
+				$username   = $this->input->post('username', TRUE);
+				$email      = $this->input->post('email', TRUE);
+				$password   = $this->input->post('password');
+
+                $emulator = $this->config->item('emulator');
+
+                if ( ! $this->wowauth->account_unique($username, 'username'))
+                {
+                    $this->session->set_flashdata('error', lang('username_already'));
+					redirect(site_url('register'));
+                }
+
+                if ( ! $this->wowauth->account_unique($email, 'email'))
+                {
+                    $this->session->set_flashdata('error', lang('email_already'));
+					redirect(site_url('register'));
+                }
+
+                
+            }
+        }
     }
 
     public function logout()
