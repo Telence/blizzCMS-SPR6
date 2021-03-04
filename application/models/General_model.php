@@ -123,6 +123,9 @@ class General_model extends CI_Model {
             case 8:
                 return "Battle of Azeroth";
                 break;
+            case 9:
+                return "ShadowLands";
+                break;
         }
     }
 
@@ -155,6 +158,9 @@ class General_model extends CI_Model {
             case 8:
                 return "120";
                 break;
+            case 9:
+                return "60";
+                break;
         }
     }
 
@@ -186,6 +192,9 @@ class General_model extends CI_Model {
                 break;
             case 8:
                 return "7";
+                break;
+            case 9:
+                return "8";
                 break;
         }
     }
