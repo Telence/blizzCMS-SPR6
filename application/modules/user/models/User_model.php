@@ -401,35 +401,14 @@ class User_model extends CI_Model {
     }
     */
 
-    public function insertRegisterByEmulator($emulator, $expansion, $username, $email, $password)
-    {
-        if ($emulator == "bnet"){
-            $salt = random_bytes(32);
-
-            $id = $this->wowauth->getIDAccount($username);
-
-            $data1 = array(
-                'id' => $id,
-                'email' => $email,
-                'salt' => $salt,
-                'verifier' => $this->wowauth->game_hash($user->username, $password, 'srp6', $salt),
-            );
-
-            $this->auth->insert('battlenet_accounts', $data1);
-
-            $this->auth->set('battlenet_account', $id)->where('id', $id)->update('account');
-        }
-    }
-
-    public function insertRegister($username, $email, $password, $emulator, $type)
+    public function insertRegister($username, $email, $password, $emulator)
     {
         $date = $this->wowgeneral->getTimestamp();
         $expansion = $this->wowgeneral->getRealExpansionDB();
-        $password = $this->wowauth->game_hash($username, $password, $type);
         $emulator = $this->config->item('emulator');
 
 
-        if ($emulator == "bnet")
+        if ($emulator == "srp6")
         {
             $salt = random_bytes(32);
 
@@ -446,13 +425,13 @@ class User_model extends CI_Model {
             $this->auth->insert('account', $data);
 
         }
-        elseif ($emulator == "cmangos")
+        elseif ($emulator == "hex")
         {
             $salt = strtoupper(bin2hex(random_bytes(32)));
 
             $data = array(
                 'username'  => $username,
-                'v'          => $this->auth->game_hash($username, $new_password, 'hex', $salt),
+                'v'          => $this->wowauth->game_hash($username, $password, 'hex', $salt),
                 's'          => $salt,
                 'email'     => $email,
                 'expansion' => $expansion,
@@ -465,7 +444,7 @@ class User_model extends CI_Model {
         {
             $data = array(
                 'username'  => $username,
-                'sha_pass_hash' => $this->auth->game_hash($username, $new_password),
+                'sha_pass_hash' => $this->wowauth->game_hash($username, $password),
                 'email'     => $email,
                 'expansion' => $expansion,
                 'sessionkey'    => '',
@@ -473,6 +452,37 @@ class User_model extends CI_Model {
 
             $this->auth->insert('account', $data);
         }
+
+        $id = $this->wowauth->getIDAccount($username);
+
+        if ($this->config->item('bnet_enabled'))
+        {
+
+            $data1 = array(
+                'id' => $id,
+                'email' => $email,
+                'sha_pass_hash' => $this->wowauth->game_hash($email, $password, 'bnet')
+            );
+
+            $this->auth->insert('battlenet_accounts', $data1);
+
+            $this->auth->set('battlenet_account', $id)->where('id', $id)->update('account');
+            $this->auth->set('battlenet_index', '1')->where('id', $id)->update('account');
+
+        }
+
+        $website = array(
+            'id' => $id,
+            'username' => $username,
+            'email' => $email,
+            'joindate' => $date,
+            'dp' => 0,
+            'vp' => 0
+        );
+
+        $this->db->insert('users', $website);
+
+        return true;
 
     }
 

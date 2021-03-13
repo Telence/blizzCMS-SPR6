@@ -157,8 +157,7 @@ class User extends MX_Controller {
 
             if ($this->form_validation->run() == FALSE)
 			{
-                //redirect(base_url('register'), 'refresh');
-                echo 'Fallo';
+                redirect(base_url('register'), 'refresh');
 			}
             else
             {
@@ -167,26 +166,31 @@ class User extends MX_Controller {
 				$password   = $this->input->post('password');
 
                 $emulator = $this->config->item('emulator');
-                $type = $this->config->item('type');
 
 
                 if ( ! $this->wowauth->account_unique($username, 'username'))
                 {
-                    $this->session->set_flashdata('error', lang('username_already'));
-                    echo $type;
-					//redirect(site_url('register'));
+					redirect(site_url('register'));
                 }
 
                 if ( ! $this->wowauth->account_unique($email, 'email'))
                 {
-                    $this->session->set_flashdata('error', lang('email_already'));
-                    echo $type;
-					//redirect(site_url('register'));
+					redirect(site_url('register'));
                 }
 
                 
 
-                echo $this->user_model->insertRegister($username, $email, $password, $emulator, $type);
+                $register = $this->user_model->insertRegister($username, $email, $password, $emulator);
+
+                if ($register)
+                {
+                    //$this->session->set_flashdata('success', lang('register_success'));
+					redirect(site_url('login'));
+                }
+                else
+                {
+					redirect(site_url('register'));
+                }
                 
             }
         }
