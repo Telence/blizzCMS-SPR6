@@ -450,20 +450,28 @@ class User_model extends CI_Model {
         {
             $salt = strtoupper(bin2hex(random_bytes(32)));
 
-            $this->auth->connect()->where('id', $user->id)->update('account', [
-                'sessionkey' => '',
+            $data = array(
+                'username'  => $username,
                 'v'          => $this->auth->game_hash($username, $new_password, 'hex', $salt),
-                's'          => $salt
-            ]);
+                's'          => $salt,
+                'email'     => $email,
+                'expansion' => $expansion,
+            );
+
+            $this->auth->insert('account', $data);
         }
+
         elseif ($emulator == "old-trinity")
         {
-            $this->auth->connect()->where('id', $user->id)->update('account', [
+            $data = array(
+                'username'  => $username,
                 'sha_pass_hash' => $this->auth->game_hash($username, $new_password),
+                'email'     => $email,
+                'expansion' => $expansion,
                 'sessionkey'    => '',
-                'v'             => '',
-                's'             => ''
-            ]);
+            );
+
+            $this->auth->insert('account', $data);
         }
 
     }
