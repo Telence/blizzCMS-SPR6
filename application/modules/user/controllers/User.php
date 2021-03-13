@@ -149,7 +149,6 @@ class User extends MX_Controller {
 
         if ($this->input->method() == 'post')
         {
-            $this->form_validation->set_rules('nickname', 'Nickname', 'trim|required|alpha_numeric|max_length[16]');
 			$this->form_validation->set_rules('username', 'Username', 'trim|required|alpha_numeric|min_length[3]|max_length[16]|differs[nickname]');
 			$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
 			$this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
@@ -158,31 +157,48 @@ class User extends MX_Controller {
 
             if ($this->form_validation->run() == FALSE)
 			{
-                redirect(base_url('register'), 'refresh');
+                //redirect(base_url('register'), 'refresh');
+                echo 'Fallo';
 			}
             else
             {
-                $nickname   = $this->input->post('nickname', TRUE);
 				$username   = $this->input->post('username', TRUE);
 				$email      = $this->input->post('email', TRUE);
 				$password   = $this->input->post('password');
 
                 $emulator = $this->config->item('emulator');
+                $type = $this->config->item('type');
+
 
                 if ( ! $this->wowauth->account_unique($username, 'username'))
                 {
                     $this->session->set_flashdata('error', lang('username_already'));
-					redirect(site_url('register'));
+                    echo $type;
+					//redirect(site_url('register'));
                 }
 
                 if ( ! $this->wowauth->account_unique($email, 'email'))
                 {
                     $this->session->set_flashdata('error', lang('email_already'));
-					redirect(site_url('register'));
+                    echo $type;
+					//redirect(site_url('register'));
                 }
 
                 
+
+                echo $this->user_model->insertRegister($username, $email, $password, $emulator, $type);
+                
             }
+        }
+        else
+        {
+            $data = array(
+                'pagetitle' => $this->lang->line('tab_register'),
+                'recapKey' => $this->config->item('recaptcha_sitekey'),
+                'lang' => $this->lang->lang(),
+            );
+    
+            $this->template->build('register', $data);
         }
     }
 

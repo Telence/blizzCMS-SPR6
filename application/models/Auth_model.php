@@ -231,6 +231,20 @@ class Auth_model extends CI_Model {
 
     }
 
+    /**
+	 * Check if username and email is unique in auth
+	 *
+	 * @param string $data
+	 * @param string $column
+	 * @return bool
+	 */
+	public function account_unique($data, $column = 'username')
+	{
+		$query = $this->auth->where($column, $data)->get('account')->num_rows();
+
+		return ($query == 0);
+	}
+
     public function checkAccountExist()
     {
         return $this->db->select('id')->where('id', $this->session->userdata('wow_sess_id'))->get('users')->num_rows();

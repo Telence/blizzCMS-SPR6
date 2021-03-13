@@ -267,6 +267,7 @@ class User_model extends CI_Model {
         }
     }
 
+    /*
     public function insertRegister($username, $email, $password, $repassword)
     {
         $date = $this->wowgeneral->getTimestamp();
@@ -397,6 +398,74 @@ class User_model extends CI_Model {
         }
         else
             return 'regUser';
+    }
+    */
+
+    public function insertRegisterByEmulator($emulator, $expansion, $username, $email, $password)
+    {
+        if ($emulator == "bnet"){
+            $salt = random_bytes(32);
+
+            $id = $this->wowauth->getIDAccount($username);
+
+            $data1 = array(
+                'id' => $id,
+                'email' => $email,
+                'salt' => $salt,
+                'verifier' => $this->wowauth->game_hash($user->username, $password, 'srp6', $salt),
+            );
+
+            $this->auth->insert('battlenet_accounts', $data1);
+
+            $this->auth->set('battlenet_account', $id)->where('id', $id)->update('account');
+        }
+    }
+
+    public function insertRegister($username, $email, $password, $emulator, $type)
+    {
+        $date = $this->wowgeneral->getTimestamp();
+        $expansion = $this->wowgeneral->getRealExpansionDB();
+        $password = $this->wowauth->game_hash($username, $password, $type);
+        $emulator = $this->config->item('emulator');
+
+
+        if ($emulator == "bnet")
+        {
+            $salt = random_bytes(32);
+
+            $data = array(
+                'username'  => $username,
+                'salt'      => $salt,
+                'verifier' => $this->wowauth->game_hash($username, $password, 'srp6', $salt),
+                'email'     => $email,
+                'expansion' => $expansion,
+                'session_key_auth' => null,
+                'session_key_bnet' => null
+            );
+
+            $this->auth->insert('account', $data);
+
+        }
+        elseif ($emulator == "cmangos")
+        {
+            $salt = strtoupper(bin2hex(random_bytes(32)));
+
+            $this->auth->connect()->where('id', $user->id)->update('account', [
+                'sessionkey' => '',
+                'v'          => $this->auth->game_hash($username, $new_password, 'hex', $salt),
+                's'          => $salt
+            ]);
+        }
+        elseif ($emulator == "old-trinity")
+        {
+            $this->auth->connect()->where('id', $user->id)->update('account', [
+                'sha_pass_hash' => $this->auth->game_hash($username, $new_password),
+                'sessionkey'    => '',
+                'v'             => '',
+                's'             => ''
+            ]);
+        }
+
     }
 
     public function checkuserid($username)
