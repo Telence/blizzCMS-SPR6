@@ -46,6 +46,8 @@ class User extends MX_Controller {
            date_default_timezone_set($this->config->item('timezone'));
     }
 
+
+
     public function login()
     {
         if (!$this->wowmodule->getLoginStatus())
@@ -55,85 +57,49 @@ class User extends MX_Controller {
             redirect(base_url(),'refresh');
 
 
-        if ($this->wowgeneral->getExpansionAction() == 1)
+        if ($this->input->method() == 'post')
         {
-            if($this->wowgeneral->getEmulatorAction() == 1){
-                $data = array(
-                    'pagetitle' => $this->lang->line('tab_login'),
-                    'recapKey' => $this->config->item('recaptcha_sitekey'),
-                    'lang' => $this->lang->lang(),
-                );
-    
-                $this->template->build('login2', $data);
-            }else{
+			$this->form_validation->set_rules('username', 'Username/Email', 'trim|required');
+			$this->form_validation->set_rules('password', 'Password', 'trim|required');
+
             
-                $data = array(
-                'pagetitle' => $this->lang->line('tab_login'),
-                'recapKey' => $this->config->item('recaptcha_sitekey'),
-                'lang' => $this->lang->lang(),
-            );
-                $this->template->build('login1', $data);
+            if ($this->form_validation->run() == FALSE)
+			{
+                redirect(base_url('register'), 'refresh');
+			}
+            else
+            {
+                $response = $this->user_model->authentication(
+					$this->input->post('username', TRUE),
+					$this->input->post('password')
+				);
+
+				if (! $response)
+				{
+					$this->session->set_flashdata('error', lang('login_error'));
+                    $this->template->build('login', $data);
+				}
+				else
+				{
+					//redirect(site_url('user'));
+				}
+
             }
-        }
-        else
+        } 
+        else 
         {
+
             $data = array(
                 'pagetitle' => $this->lang->line('tab_login'),
                 'recapKey' => $this->config->item('recaptcha_sitekey'),
                 'lang' => $this->lang->lang(),
             );
+            
+            $this->template->build('login', $data);
 
-            $this->template->build('login2', $data);
         }
+       
     }
-
-    public function verify1()
-    {
-        $username = $this->input->post('username');
-        $password = $this->input->post('password');
-        echo $this->user_model->checklogin($username, $password);
-    }
-
-    public function verify2()
-    {
-        $email = $this->input->post('email');
-        $password = $this->input->post('password');
-        echo $this->user_model->checkloginbattle($email, $password);
-    }
-
-
-    /*
-    public function register()
-    {
-        if (!$this->wowgeneral->getMaintenance())
-            redirect(base_url('maintenance'),'refresh');
-
-        if (!$this->wowmodule->getRegisterStatus())
-            redirect(base_url(),'refresh');
-
-        if ($this->wowauth->isLogged())
-            redirect(base_url(),'refresh');
-
-        $data = array(
-            'pagetitle' => $this->lang->line('tab_register'),
-            'recapKey' => $this->config->item('recaptcha_sitekey'),
-            'lang' => $this->lang->lang(),
-        );
-
-        $this->template->build('register', $data);
-    }
-
-    public function newaccount()
-    {
-        $username = $this->input->post('username');
-        $email = $this->input->post('email');
-        $password = $this->input->post('password');
-        $repassword = $this->input->post('repassword');
-        echo $this->user_model->insertRegister($username, $email, $password, $repassword);
-    }
-    
-    */
-
 
     public function register()
     {
