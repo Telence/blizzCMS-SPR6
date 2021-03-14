@@ -46,8 +46,6 @@ class User extends MX_Controller {
            date_default_timezone_set($this->config->item('timezone'));
     }
 
-
-
     public function login()
     {
         if (!$this->wowmodule->getLoginStatus())
@@ -56,7 +54,12 @@ class User extends MX_Controller {
         if ($this->wowauth->isLogged())
             redirect(base_url(),'refresh');
 
-
+        $data = array(
+            'pagetitle' => $this->lang->line('tab_login'),
+            'recapKey' => $this->config->item('recaptcha_sitekey'),
+            'lang' => $this->lang->lang(),
+        );
+            
         if ($this->input->method() == 'post')
         {
 			$this->form_validation->set_rules('username', 'Username/Email', 'trim|required');
@@ -88,15 +91,7 @@ class User extends MX_Controller {
         } 
         else 
         {
-
-            $data = array(
-                'pagetitle' => $this->lang->line('tab_login'),
-                'recapKey' => $this->config->item('recaptcha_sitekey'),
-                'lang' => $this->lang->lang(),
-            );
-            
             $this->template->build('login', $data);
-
         }
        
     }
