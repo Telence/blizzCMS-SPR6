@@ -12,5 +12,15 @@ if ( ! function_exists('lang'))
 	{
         return get_instance()->lang->line($line);
 	}
+
+	/**
+	 * @param mixed $config
+	 * 
+	 * @return string
+	 */
+	function config($config): string
+	{
+        return get_instance()->config->item($config);
+	}
 }
 

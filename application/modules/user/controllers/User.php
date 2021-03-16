@@ -84,7 +84,7 @@ class User extends MX_Controller {
 				}
 				else
 				{
-					//redirect(site_url('user'));
+					redirect(site_url('user'));
 				}
 
             }
@@ -114,7 +114,6 @@ class User extends MX_Controller {
 			$this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email');
 			$this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[8]');
 			$this->form_validation->set_rules('confirm_password', 'Confirm password', 'trim|required|min_length[8]|matches[password]');
-			// $this->form_validation->set_rules('terms', 'Terms and conditions', 'trim|required');
 
             if ($this->form_validation->run() == FALSE)
 			{
@@ -145,7 +144,7 @@ class User extends MX_Controller {
 
                 if ($register)
                 {
-                    //$this->session->set_flashdata('success', lang('register_success'));
+                    $this->session->set_flashdata('success', lang('register_success'));
 					redirect(site_url('login'));
                 }
                 else
