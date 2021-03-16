@@ -13,6 +13,12 @@ if ( ! function_exists('lang'))
         return get_instance()->lang->line($line);
 	}
 
+
+}
+
+
+if ( ! function_exists('config'))
+{
 	/**
 	 * @param mixed $config
 	 * 
@@ -22,5 +28,5 @@ if ( ! function_exists('lang'))
 	{
         return get_instance()->config->item($config);
 	}
+	
 }
-
