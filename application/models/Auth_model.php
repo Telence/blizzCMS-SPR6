@@ -17,6 +17,11 @@ class Auth_model extends CI_Model {
         }
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function arraySession($id)
     {
         $data = array(
@@ -35,41 +40,79 @@ class Auth_model extends CI_Model {
         return $this->sessionConnect($data);
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getGmSpecify($id)
     {
         return $this->auth->select('id')->where('id', $id)->get('account_access');
     }
 
+    /**
+     * @return [type]
+     */
     public function randomUTF()
     {
         return rand(0, 999999999);
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getUsernameID($id)
     {
         return $this->auth->select('username')->where('id', $id)->get('account')->row('username');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getSiteUsernameID($id)
     {
         return $this->db->select('username')->where('id', $id)->get('users')->row('username');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getEmailID($id)
     {
         return $this->auth->select('email')->where('id', $id)->get('account')->row('email');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getPasswordAccountID($id)
     {
         return $this->auth->select('sha_pass_hash')->where('id', $id)->get('account')->row('sha_pass_hash');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getPasswordBnetID($id)
     {
         return $this->auth->select('sha_pass_hash')->where('id', $id)->get('battlenet_accounts')->row('sha_pass_hash');
     }
 
+    /**
+     * @param mixed $account
+     * 
+     * @return [type]
+     */
     public function getSpecifyAccount($account)
     {
         $account = strtoupper($account);
@@ -77,11 +120,21 @@ class Auth_model extends CI_Model {
         return $this->auth->select('id')->where('username', $account)->get('account');
     }
 
+    /**
+     * @param mixed $email
+     * 
+     * @return [type]
+     */
     public function getSpecifyEmail($email)
     {
         return $this->auth->select('id')->where('email', $email)->get('account');
     }
 
+    /**
+     * @param mixed $account
+     * 
+     * @return [type]
+     */
     public function getIDAccount($account)
     {
         $account = strtoupper($account);
@@ -94,16 +147,31 @@ class Auth_model extends CI_Model {
             return '0';
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getImageProfile($id)
     {
         return $this->db->select('profile')->where('id', $id)->get('users')->row('profile');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getNameAvatar($id)
     {
         return $this->db->select('name')->where('id', $id)->get('avatars')->row('name');
     }
 
+    /**
+     * @param mixed $email
+     * 
+     * @return [type]
+     */
     public function getIDEmail($email)
     {
         $email = strtoupper($email);
@@ -116,26 +184,51 @@ class Auth_model extends CI_Model {
             return '0';
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getExpansionID($id)
     {
         return $this->auth->select('expansion')->where('id', $id)->get('account')->row('expansion');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getLastIPID($id)
     {
         return $this->auth->select('last_ip')->where('id', $id)->get('account')->row('last_ip');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getLastLoginID($id)
     {
         return $this->auth->select('last_login')->where('id', $id)->get('account')->row('last_login');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getJoinDateID($id)
     {
         return $this->auth->select('joindate')->where('id', $id)->get('account')->row('joindate');
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getRank($id)
     {
         if ($this->auth->field_exists('SecurityLevel', 'account_access'))
@@ -158,6 +251,11 @@ class Auth_model extends CI_Model {
         }
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getBanStatus($id)
     {
         $qq = $this->auth->select('*')->where('id', $id)->where('active', '1')->get('account_banned');
@@ -168,6 +266,9 @@ class Auth_model extends CI_Model {
             return false;
     }
 
+    /**
+     * @return [type]
+     */
     public function isLogged()
     {
         if ($this->session->userdata('wow_sess_username'))
@@ -176,18 +277,34 @@ class Auth_model extends CI_Model {
             return false;
     }
 
+    /**
+     * @param mixed $data
+     * 
+     * @return [type]
+     */
     public function sessionConnect($data)
     {
         $this->session->set_userdata($data);
         return true;
     }
 
+    /**
+     * @return [type]
+     */
     public function logout()
     {
         $this->session->sess_destroy();
         redirect(base_url(),'refresh');
     }
 
+    /**
+     * @param mixed $username
+     * @param mixed $password
+     * @param null $type
+     * @param null $salt
+     * 
+     * @return [type]
+     */
     public function game_hash($username, $password, $type = null, $salt = null)
     {
         switch ($type)
@@ -237,11 +354,17 @@ class Auth_model extends CI_Model {
 		return ($query == 0);
 	}
 
+    /**
+     * @return [type]
+     */
     public function checkAccountExist()
     {
         return $this->db->select('id')->where('id', $this->session->userdata('wow_sess_id'))->get('users')->num_rows();
     }
 
+    /**
+     * @return [type]
+     */
     public function synchronizeAccount()
     {
         if ($this->checkAccountExist() == 0)
@@ -263,6 +386,11 @@ class Auth_model extends CI_Model {
     }
 
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getIsAdmin($id)
     {
         $config = $this->config->item('admin_access_level');
@@ -296,6 +424,11 @@ class Auth_model extends CI_Model {
 
     }
 
+    /**
+     * @param mixed $id
+     * 
+     * @return [type]
+     */
     public function getIsModerator($id)
     {
         $config = $this->config->item('mod_access_level');
@@ -328,6 +461,9 @@ class Auth_model extends CI_Model {
         }
     }
 
+    /**
+     * @return [type]
+     */
     public function getMaintenancePermission()
     {
         $config = $this->config->item('mod_access_level');
