@@ -138,12 +138,24 @@ class Auth_model extends CI_Model {
 
     public function getRank($id)
     {
-        $qq = $this->auth->select('gmlevel')->where('id', $id)->get('account_access');
+        if ($this->auth->field_exists('SecurityLevel', 'account_access'))
+        {
+            $qq = $this->auth->select('SecurityLevel')->where('AccountID', $id)->get('account_access');
 
-        if($qq->num_rows())
-            return $qq->row('gmlevel');
-        else
-            return '0';
+            if($qq->num_rows())
+                return $qq->row('SecurityLevel');
+            else
+                return '0';
+        }
+        else 
+        {
+            $qq = $this->auth->select('gmlevel')->where('id', $id)->get('account_access');
+
+            if($qq->num_rows())
+                return $qq->row('gmlevel');
+            else
+                return '0';    
+        }
     }
 
     public function getBanStatus($id)
@@ -175,26 +187,6 @@ class Auth_model extends CI_Model {
         $this->session->sess_destroy();
         redirect(base_url(),'refresh');
     }
-
-    /*
-    public function Battlenet($email, $password)
-    {
-        return strtoupper(bin2hex(strrev(hex2bin(strtoupper(hash("sha256",strtoupper(hash("sha256", strtoupper($email)).":".strtoupper($password))))))));
-    }
-
-    public function Account($username, $password)
-    {
-        if (!is_string($username))
-            $username = "";
-
-        if (!is_string($password))
-            $password = "";
-
-        $sha_pass_hash = sha1(strtoupper($username).':'.strtoupper($password));
-
-        return strtoupper($sha_pass_hash);
-    }
-    */
 
     public function game_hash($username, $password, $type = null, $salt = null)
     {
@@ -270,55 +262,69 @@ class Auth_model extends CI_Model {
             return false;
     }
 
-    public function getRankByLevel($gmlevel)
-    {
-        $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-        $gmlevel = $this->db->select('comment')->where('permission', $qq->row('gmlevel'))->get('ranks_default');
-
-        if($gmlevel->num_rows())
-            return $gmlevel->row('comment');
-        else
-        {
-            return 'Player';
-        }
-    }
 
     public function getIsAdmin($id)
     {
         $config = $this->config->item('admin_access_level');
 
-        $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-        if(!$qq->row('gmlevel'))
-            return false;
-        else
+        if ($this->auth->field_exists('SecurityLevel', 'account_access'))
         {
-            if($qq->row('gmlevel') >= $config)
-                return true;
+            $qq = $this->auth->select('SecurityLevel')->where('AccountID', $this->session->userdata('wow_sess_id'))->get('account_access');
+
+            if(!$qq->row('SecurityLevel'))
+                return false;
             else
             {
-                return false;
+                if($qq->row('SecurityLevel') >= $config)
+                    return true;
+                else
+                    return false;
             }
         }
+        else 
+        {
+            $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
+
+            if(!$qq->row('gmlevel'))
+                return false;
+            else
+                if($qq->row('gmlevel') >= $config)
+                    return true;
+                else
+                    return false;
+        }
+
     }
 
     public function getIsModerator($id)
     {
         $config = $this->config->item('mod_access_level');
 
-        $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-        if(!$qq->row('gmlevel'))
-            return false;
-        else
+        if ($this->auth->field_exists('SecurityLevel', 'account_access'))
         {
-            if($qq->row('gmlevel') >= $config)
-                return true;
+            $qq = $this->auth->select('SecurityLevel')->where('AccountID', $this->session->userdata('wow_sess_id'))->get('account_access');
+
+            if(!$qq->row('SecurityLevel'))
+                return false;
             else
             {
-                return false;
+                if($qq->row('SecurityLevel') >= $config)
+                    return true;
+                else
+                    return false;
             }
+        }
+        else 
+        {
+            $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
+
+            if(!$qq->row('gmlevel'))
+                return false;
+            else
+                if($qq->row('gmlevel') >= $config)
+                    return true;
+                else
+                    return false;
         }
     }
 
@@ -326,18 +332,31 @@ class Auth_model extends CI_Model {
     {
         $config = $this->config->item('mod_access_level');
 
-        $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-        if(!$qq->row('gmlevel'))
-            return false;
-        else
+        if ($this->auth->field_exists('SecurityLevel', 'account_access'))
         {
-            if($qq->row('gmlevel') >= $config)
+            $qq = $this->auth->select('SecurityLevel')->where('AccountID', $this->session->userdata('wow_sess_id'))->get('account_access');
+
+            if(!$qq->row('SecurityLevel'))
                 return false;
             else
             {
-                return true;
+                if($qq->row('SecurityLevel') >= $config)
+                    return true;
+                else
+                    return false;
             }
+        }
+        else 
+        {
+            $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
+
+            if(!$qq->row('gmlevel'))
+                return false;
+            else
+                if($qq->row('gmlevel') >= $config)
+                    return true;
+                else
+                    return false;
         }
     }
 }
