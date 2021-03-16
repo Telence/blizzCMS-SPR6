@@ -229,17 +229,19 @@ class Auth_model extends CI_Model {
      * 
      * @return [type]
      */
-    public function getRank($id)
+    public function getRank($id = null)
     {
         $account = $id ?? $this->session->userdata('wow_sess_id');
 
         $value = $this->auth->field_exists('SecurityLevel', 'account_access') ? $this->auth->where('AccountID', $account)->get('account_access')
             ->row('SecurityLevel') : $this->auth->where('id', $account)->get('account_access')->row('gmlevel');
 
-        if (empty($value))
-            return 0;
-        else
+        if (! empty($value))
+        {
             return $value;
+        }
+
+        return 0;
     }
 
     /**
