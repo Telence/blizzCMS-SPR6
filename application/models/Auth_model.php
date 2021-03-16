@@ -233,7 +233,7 @@ class Auth_model extends CI_Model {
     {
         if ($this->auth->field_exists('SecurityLevel', 'account_access'))
         {
-            $qq = $this->auth->select('SecurityLevel')->where('AccountID', $id)->get('account_access');
+            $qq = $this->auth->where('AccountID', $id)->get('account_access');
 
             if($qq->num_rows())
                 return $qq->row('SecurityLevel');
@@ -242,7 +242,7 @@ class Auth_model extends CI_Model {
         }
         else 
         {
-            $qq = $this->auth->select('gmlevel')->where('id', $id)->get('account_access');
+            $qq = $this->auth->where('id', $id)->get('account_access');
 
             if($qq->num_rows())
                 return $qq->row('gmlevel');
@@ -383,45 +383,6 @@ class Auth_model extends CI_Model {
         }
         else
             return false;
-    }
-
-
-    /**
-     * @param mixed $id
-     * 
-     * @return [type]
-     */
-    public function getIsAdmin($id)
-    {
-        $config = $this->config->item('admin_access_level');
-
-        if ($this->auth->field_exists('SecurityLevel', 'account_access'))
-        {
-            $qq = $this->auth->select('SecurityLevel')->where('AccountID', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-            if(!$qq->row('SecurityLevel'))
-                return false;
-            else
-            {
-                if($qq->row('SecurityLevel') >= $config)
-                    return true;
-                else
-                    return false;
-            }
-        }
-        else 
-        {
-            $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-            if(!$qq->row('gmlevel'))
-                return false;
-            else
-                if($qq->row('gmlevel') >= $config)
-                    return true;
-                else
-                    return false;
-        }
-
     }
 
     /**
