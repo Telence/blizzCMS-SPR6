@@ -231,24 +231,15 @@ class Auth_model extends CI_Model {
      */
     public function getRank($id)
     {
-        if ($this->auth->field_exists('SecurityLevel', 'account_access'))
-        {
-            $qq = $this->auth->where('AccountID', $id)->get('account_access');
+        $account = $id ?? $this->session->userdata('wow_sess_id');
 
-            if($qq->num_rows())
-                return $qq->row('SecurityLevel');
-            else
-                return '0';
-        }
-        else 
-        {
-            $qq = $this->auth->where('id', $id)->get('account_access');
+        $value = $this->auth->field_exists('SecurityLevel', 'account_access') ? $this->auth->where('AccountID', $account)->get('account_access')
+            ->row('SecurityLevel') : $this->auth->where('id', $account)->get('account_access')->row('gmlevel');
 
-            if($qq->num_rows())
-                return $qq->row('gmlevel');
-            else
-                return '0';    
-        }
+        if (empty($value))
+            return 0;
+        else
+            return $value;
     }
 
     /**
