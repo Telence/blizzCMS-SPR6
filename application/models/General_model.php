@@ -24,7 +24,7 @@ class General_model extends CI_Model {
 
         if($config == '1' && $this->wowauth->isLogged())
         {
-            if($this->wowauth->getMaintenancePermission())
+            if($this->wowauth->getRank($this->session->userdata('wow_sess_id')) >= config('mod_access_level'))
                 return true;
             else
                 return false;

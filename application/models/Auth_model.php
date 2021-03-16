@@ -375,39 +375,4 @@ class Auth_model extends CI_Model {
         else
             return false;
     }
-
-    /**
-     * @return [type]
-     */
-    public function getMaintenancePermission()
-    {
-        $config = $this->config->item('mod_access_level');
-
-        if ($this->auth->field_exists('SecurityLevel', 'account_access'))
-        {
-            $qq = $this->auth->select('SecurityLevel')->where('AccountID', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-            if(!$qq->row('SecurityLevel'))
-                return false;
-            else
-            {
-                if($qq->row('SecurityLevel') >= $config)
-                    return true;
-                else
-                    return false;
-            }
-        }
-        else 
-        {
-            $qq = $this->auth->select('gmlevel')->where('id', $this->session->userdata('wow_sess_id'))->get('account_access');
-
-            if(!$qq->row('gmlevel'))
-                return false;
-            else
-                if($qq->row('gmlevel') >= $config)
-                    return true;
-                else
-                    return false;
-        }
-    }
 }
