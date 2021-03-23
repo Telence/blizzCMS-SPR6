@@ -9,7 +9,6 @@ class General_model extends CI_Model {
     public function __construct()
     {
         parent::__construct();
-        $this->auth = $this->load->database('auth', TRUE);
     }
 
     public function getTimestamp()

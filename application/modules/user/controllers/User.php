@@ -84,7 +84,7 @@ class User extends MX_Controller {
 				}
 				else
 				{
-					redirect(site_url('user'));
+					redirect(site_url('panel'));
 				}
 
             }
@@ -243,11 +243,37 @@ class User extends MX_Controller {
 
     public function newusername()
     {
-        $username = $this->input->post('newusername');
-        $renewusername = $this->input->post('renewusername');
-        $password = $this->input->post('password');
+        if (!$this->wowgeneral->getMaintenance())
+            redirect(base_url('maintenance'),'refresh');
 
-        echo $this->user_model->changeUsername($username, $renewusername, $password);
+        if ($this->input->method() == 'post') {
+
+			$this->form_validation->set_rules('newusername', 'New username', 'trim|required');
+            $this->form_validation->set_rules('confirmusername', 'Confirm Username', 'trim|required|matches[newusername]');
+
+            if ($this->form_validation->run() == FALSE)
+			{
+                redirect(base_url('settings'), 'refresh');
+			}
+            else
+            {
+                $username   = $this->wowauth->getSiteUsernameID($this->session->userdata('wow_sess_id'));
+				$newusername = $this->input->post('newusername', TRUE);
+				$password   = $this->input->post('password');
+
+                $change = $this->user_model->changeUsername($username, $newusername, $password);
+
+                if ($change)
+					redirect(site_url('logout'), 'refresh');
+                else
+					redirect(site_url('settings'), 'refresh');
+
+            }
+        }
+        else
+        {
+            redirect(base_url(), 'refresh');
+        }
     }
 
     public function newpass()

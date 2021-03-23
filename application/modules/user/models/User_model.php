@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class User_model extends CI_Model {
+class User_model extends CI_Model
+{
 
     /**
      * User_model constructor.
@@ -9,14 +10,14 @@ class User_model extends CI_Model {
     public function __construct()
     {
         parent::__construct();
-        $this->auth = $this->load->database('auth', TRUE);
+        $this->auth = $this->load->database('auth', true);
     }
 
-    
+
 
     /**
      * @param mixed $email
-     * 
+     *
      * @return [type]
      */
     public function getExistEmail($email)
@@ -34,7 +35,7 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $avatar
-     * 
+     *
      * @return [type]
      */
     public function changeAvatar($avatar)
@@ -45,37 +46,39 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $id
-     * 
+     *
      * @return [type]
      */
     public function getDateMember($id)
     {
         $qq = $this->db->select('joindate')->where('id', $id)->get('users');
 
-        if ($qq->num_rows())
+        if ($qq->num_rows()) {
             return $qq->row('joindate');
-        else
+        } else {
             return 'Unknow';
+        }
     }
 
     /**
      * @param mixed $id
-     * 
+     *
      * @return [type]
      */
     public function getExpansion($id)
     {
         $qq = $this->db->select('expansion')->where('id', $id)->get('users');
 
-        if ($qq->num_rows())
+        if ($qq->num_rows()) {
             return $qq->row('expansion');
-        else
+        } else {
             return 'Unknow';
+        }
     }
 
     /**
      * @param mixed $id
-     * 
+     *
      * @return [type]
      */
     public function getLastIp($id)
@@ -84,23 +87,23 @@ class User_model extends CI_Model {
     }
 
     /**
-	 * Check if user exists
-	 *
-	 * @param int $id
-	 * @return boolean
-	 */
-	public function find_user($id)
-	{
-		$query = $this->db->where('id', $id)->get('users')->num_rows();
+     * Check if user exists
+     *
+     * @param int $id
+     * @return boolean
+     */
+    public function find_user($id)
+    {
+        $query = $this->db->where('id', $id)->get('users')->num_rows();
 
-		return ($query == 1);
-	}
+        return ($query == 1);
+    }
 
 
     /**
      * @param mixed $username
      * @param mixed $password
-     * 
+     *
      * @return [type]
      */
     public function authentication($username, $password)
@@ -108,51 +111,48 @@ class User_model extends CI_Model {
         $accgame =  $this->auth->where('username', $username)->or_where('email', $username)->get('account')->row();
         $emulator = $this->config->item('emulator');
 
-        if (empty($accgame))
-		{
-			return false;
-		}
-
-        switch ($emulator)
-        {
-            case 'srp6':
-				$validate = ($accgame->verifier === $this->wowauth->game_hash($accgame->username, $password, 'srp6', $accgame->salt));
-				break;
-			case 'hex':
-				$validate = (strtoupper($accgame->v) === $this->wowauth->game_hash($accgame->username, $password, 'hex', $accgame->s));
-				break;
-			case 'old_trinity':
-				$validate = hash_equals(strtoupper($accgame->sha_pass_hash), $this->wowauth->game_hash($accgame->username, $password));
-				break;
+        if (empty($accgame)) {
+            return false;
         }
 
-		if (! isset($validate) || ! $validate)
-		{
-			return false;
-		}
+        switch ($emulator) {
+            case 'srp6':
+                $validate = ($accgame->verifier === $this->wowauth->game_hash($accgame->username, $password, 'srp6', $accgame->salt));
+                break;
+            case 'hex':
+                $validate = (strtoupper($accgame->v) === $this->wowauth->game_hash($accgame->username, $password, 'hex', $accgame->s));
+                break;
+            case 'old_trinity':
+                $validate = hash_equals(strtoupper($accgame->sha_pass_hash), $this->wowauth->game_hash($accgame->username, $password));
+                break;
+        }
 
-		// if account on website don't exist sync values from game account
-		if (! $this->find_user($accgame->id))
-		{
-			$this->db->insert('users', [
-				'id'        => $accgame->id,
-				'nickname'  => $accgame->username,
-				'username'  => $accgame->username,
-				'email'     => $accgame->email,
-				'joined_at' => strtotime($accgame->joindate)
-			]);
-		}
+        if (!isset($validate) || !$validate) {
+            return false;
+        }
+
+        // if account on website don't exist sync values from game account
+        if (!$this->find_user($accgame->id)) {
+            $this->db->insert('users', [
+                'id'        => $accgame->id,
+                'nickname'  => $accgame->username,
+                'username'  => $accgame->username,
+                'email'     => $accgame->email,
+                'joined_at' => strtotime($accgame->joindate)
+            ]);
+        }
 
         $this->wowauth->arraySession($accgame->id);
-    
+
+        return true;
     }
-    
+
     /**
      * @param mixed $username
      * @param mixed $email
      * @param mixed $password
      * @param mixed $emulator
-     * 
+     *
      * @return [type]
      */
     public function insertRegister($username, $email, $password, $emulator)
@@ -162,8 +162,7 @@ class User_model extends CI_Model {
         $emulator = $this->config->item('emulator');
 
 
-        if ($emulator == "srp6")
-        {
+        if ($emulator == "srp6") {
             $salt = random_bytes(32);
 
             $data = array(
@@ -177,10 +176,7 @@ class User_model extends CI_Model {
             );
 
             $this->auth->insert('account', $data);
-
-        }
-        elseif ($emulator == "hex")
-        {
+        } elseif ($emulator == "hex") {
             $salt = strtoupper(bin2hex(random_bytes(32)));
 
             $data = array(
@@ -192,10 +188,7 @@ class User_model extends CI_Model {
             );
 
             $this->auth->insert('account', $data);
-        }
-
-        elseif ($emulator == "old-trinity")
-        {
+        } elseif ($emulator == "old-trinity") {
             $data = array(
                 'username'  => $username,
                 'sha_pass_hash' => $this->wowauth->game_hash($username, $password),
@@ -209,9 +202,7 @@ class User_model extends CI_Model {
 
         $id = $this->wowauth->getIDAccount($username);
 
-        if ($this->config->item('bnet_enabled'))
-        {
-
+        if ($this->config->item('bnet_enabled')) {
             $data1 = array(
                 'id' => $id,
                 'email' => $email,
@@ -222,7 +213,6 @@ class User_model extends CI_Model {
 
             $this->auth->set('battlenet_account', $id)->where('id', $id)->update('account');
             $this->auth->set('battlenet_index', '1')->where('id', $id)->update('account');
-
         }
 
         $website = array(
@@ -237,12 +227,11 @@ class User_model extends CI_Model {
         $this->db->insert('users', $website);
 
         return true;
-
     }
 
     /**
      * @param mixed $username
-     * 
+     *
      * @return [type]
      */
     public function checkuserid($username)
@@ -252,7 +241,7 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $email
-     * 
+     *
      * @return [type]
      */
     public function checkemailid($email)
@@ -263,7 +252,7 @@ class User_model extends CI_Model {
     /**
      * @param mixed $username
      * @param mixed $email
-     * 
+     *
      * @return [type]
      */
     public function sendpassword($username, $email)
@@ -271,8 +260,7 @@ class User_model extends CI_Model {
         $ucheck = $this->checkuserid($username);
         $echeck = $this->checkemailid($email);
 
-        if ($ucheck == $echeck)
-        {
+        if ($ucheck == $echeck) {
             $allowed_chars = "0123456789abcdefghijklmnopqrstuvwxyz";
             $password_generated = "";
             $password_generated = substr(str_shuffle($allowed_chars), 0, 14);
@@ -280,8 +268,7 @@ class User_model extends CI_Model {
             $newpassI = $this->wowauth->Account($username, $newpass);
             $newpassII = $this->wowauth->Battlenet($email, $newpass);
 
-            if ($this->wowgeneral->getExpansionAction() == 1)
-            {
+            if ($this->wowgeneral->getExpansionAction() == 1) {
                 $accupdate = array(
                     'sha_pass_hash' => $newpassI,
                     'sessionkey' => '',
@@ -290,9 +277,7 @@ class User_model extends CI_Model {
                 );
 
                 $this->auth->where('id', $ucheck)->update('account', $accupdate);
-            }
-            else
-            {
+            } else {
                 $accupdate = array(
                     'sha_pass_hash' => $newpassI,
                     'sessionkey' => '',
@@ -305,21 +290,21 @@ class User_model extends CI_Model {
                 $this->auth->set('sha_pass_hash', $newpassII)->where('id', $echeck)->update('battlenet_accounts');
             }
 
-            $mail_message = 'Hi, <span style="font-weight: bold;text-transform: uppercase;">'.$username.'</span> You have sent a request for your account password to be reset.<br>';
-            $mail_message .= 'Your new password is: <span style="font-weight: bold;">'.$password_generated.'</span><br>';
+            $mail_message = 'Hi, <span style="font-weight: bold;text-transform: uppercase;">' . $username . '</span> You have sent a request for your account password to be reset.<br>';
+            $mail_message .= 'Your new password is: <span style="font-weight: bold;">' . $password_generated . '</span><br>';
             $mail_message .= 'Please change your password again as soon as you log in!<br>';
             $mail_message .= 'Kind regards,<br>';
-            $mail_message .= $this->config->item('email_settings_sender_name').' Support.';
+            $mail_message .= $this->config->item('email_settings_sender_name') . ' Support.';
 
             return $this->wowgeneral->smtpSendEmail($email, $this->lang->line('email_password_recovery'), $mail_message);
-        }
-        else
+        } else {
             return 'sendErr';
+        }
     }
 
     /**
      * @param mixed $account
-     * 
+     *
      * @return [type]
      */
     public function getIDPendingUsername($account)
@@ -329,7 +314,7 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $email
-     * 
+     *
      * @return [type]
      */
     public function getIDPendingEmail($email)
@@ -339,7 +324,7 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $key
-     * 
+     *
      * @return [type]
      */
     public function checkPendingUser($key)
@@ -349,7 +334,7 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $key
-     * 
+     *
      * @return [type]
      */
     public function getTempUser($key)
@@ -359,7 +344,7 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $key
-     * 
+     *
      * @return [type]
      */
     public function removeTempUser($key)
@@ -369,18 +354,16 @@ class User_model extends CI_Model {
 
     /**
      * @param mixed $key
-     * 
+     *
      * @return [type]
      */
     public function activateAccount($key)
     {
-
         $check = $this->checkPendingUser($key);
         $temp = $this->getTempUser($key);
 
-        if($check == "1") {
-            if ($this->wowgeneral->getExpansionAction() == 1)
-            {
+        if ($check == "1") {
+            if ($this->wowgeneral->getExpansionAction() == 1) {
                 $data = array(
                     'username' => $temp['username'],
                     'sha_pass_hash' => $temp['password'],
@@ -389,9 +372,7 @@ class User_model extends CI_Model {
                 );
 
                 $this->auth->insert('account', $data);
-            }
-            else
-            {
+            } else {
                 $data = array(
                     'username' => $temp['username'],
                     'sha_pass_hash' => $temp['password'],
@@ -428,65 +409,95 @@ class User_model extends CI_Model {
 
             $this->removeTempUser($key);
 
-            $this->session->set_flashdata('account_activation','true');
+            $this->session->set_flashdata('account_activation', 'true');
             redirect(base_url('login'));
+        } else {
+            $this->session->set_flashdata('account_activation', 'false');
         }
-        else
-            $this->session->set_flashdata('account_activation','false');
-            redirect(base_url('login'));
+        redirect(base_url('login'));
     }
 
+
      /**
+      * @param mixed $username
       * @param mixed $newusername
-      * @param mixed $renewusername
       * @param mixed $password
       * 
       * @return [type]
       */
-     public function changeUsername($newusername, $renewusername, $password)
+     public function changeUsername($username, $newusername, $password)
      {
-        $nobnet = $this->wowauth->Account($this->session->userdata('wow_sess_username'), $password);
-        $bnet = $this->wowauth->Battlenet($this->session->userdata('wow_sess_email'), $password);
+        $accgame =  $this->auth->where('username', $username)->or_where('email', $username)->get('account')->row();
+        $id = $this->session->userdata('wow_sess_id');
+        $emulator = $this->config->item('emulator');
 
-        if($this->wowgeneral->getExpansionAction() == 1) {
-            if($this->wowgeneral->getEmulatorAction() == 1) {
-                if ($this->wowauth->getPasswordBnetID($this->session->userdata('wow_sess_id')) == strtoupper($bnet)) {
-                    if($newusername == $renewusername) {
-                        $this->db->set('username', $newusername)->where('id', $this->session->userdata('wow_sess_id'))->update('users');
-                        return true;
-                    }
-                    else
-                        return 'enoMatch';
-                }
-                else
-                    return 'epassnotMatch';
-            }
-            else
-            {
-                if ($this->wowauth->getPasswordAccountID($this->session->userdata('wow_sess_id')) == strtoupper($nobnet)) {
-                    if($newusername == $renewusername) {
-                        $this->db->set('username', $newusername)->where('id', $this->session->userdata('wow_sess_id'))->update('users');
-                        return true;
-                    }
-                    else
-                        return 'enoMatch';
-                }
-                else
-                    return 'epassnotMatch';
-            }
+        if (empty($accgame)) {
+            return false;
         }
-        else
-        {
-            if ($this->wowauth->getPasswordBnetID($this->session->userdata('wow_sess_id')) == strtoupper($bnet)) {
-                if($newusername == $renewusername) {
-                    $this->db->set('username', $newusername)->where('id', $this->session->userdata('wow_sess_id'))->update('users');
-                    return true;
-                }
-                else
-                    return 'enoMatch';
-            }
-            else
-                return 'epassnotMatch';
+
+        switch ($emulator) {
+            case 'srp6':
+                $validate = ($accgame->verifier === $this->wowauth->game_hash($accgame->username, $password, 'srp6', $accgame->salt));
+                break;
+            case 'hex':
+                $validate = (strtoupper($accgame->v) === $this->wowauth->game_hash($accgame->username, $password, 'hex', $accgame->s));
+                break;
+            case 'old_trinity':
+                $validate = hash_equals(strtoupper($accgame->sha_pass_hash), $this->wowauth->game_hash($accgame->username, $password));
+                break;
         }
+
+        if (!isset($validate) || !$validate) {
+            return false;
+        }
+
+        $query = $this->db->set('username', $newusername)->where('id', $id)->or_where('username', $username)->update('users');
+
+        if (empty($query))
+            return false;
+        else        
+            $this->auth->set('username', $newusername)->where('id', $id)->or_where('username', $username)->update('account');
+            if ($this->generateHash($emulator, $newusername, $password))
+                return true;
+            else
+                return false;
      }
+
+     /**
+      * @param mixed $emulator
+      * @param mixed $username
+      * @param mixed $password
+      * 
+      * @return [type]
+      */
+     public function generateHash($emulator, $username, $password)
+     {
+        if ($emulator == "srp6") {
+            $salt = random_bytes(32);
+
+            $data = array(
+                'salt'      => $salt,
+                'verifier' => $this->wowauth->game_hash($username, $password, 'srp6', $salt)
+            );
+
+            $this->auth->update('account', $data);
+        } elseif ($emulator == "hex") {
+            $salt = strtoupper(bin2hex(random_bytes(32)));
+
+            $data = array(
+                'v'          => $this->wowauth->game_hash($username, $password, 'hex', $salt),
+                's'          => $salt,
+            );
+
+            $this->auth->update('account', $data);
+        } elseif ($emulator == "old-trinity") {
+            $data = array(
+                'sha_pass_hash' => $this->wowauth->game_hash($username, $password),
+            );
+
+            $this->auth->update('account', $data);
+        }
+        return true;
+     }
+
 }

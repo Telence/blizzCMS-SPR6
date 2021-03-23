@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+use Laizerox\Wowemu\SRP\UserClient;
+
 class Auth_model extends CI_Model {
 
     /**
