@@ -89,7 +89,7 @@
                 <h5 class="uk-h5 uk-text-uppercase uk-text-bold"><i class="fas fa-envelope"></i> <?= $this->lang->line('panel_change_email'); ?></h5>
               </div>
               <div class="uk-card-body">
-                <?= form_open('', 'id="changeemailForm" onsubmit="ChangeEmailForm(event)"'); ?>
+                <?= form_open(base_url($lang.'/changemail')); ?>
                 <div class="uk-margin uk-light">
                   <label class="uk-form-label"><?= $this->lang->line('panel_current_email'); ?>:</label>
                   <div class="uk-form-controls">
@@ -106,7 +106,7 @@
                       <div class="uk-form-controls">
                         <div class="uk-inline uk-width-1-1">
                           <span class="uk-form-icon"><i class="far fa-envelope fa-lg"></i></span>
-                          <input class="uk-input" id="change_newemail" type="email" placeholder="<?= $this->lang->line('placeholder_new_email'); ?>" required>
+                          <input class="uk-input" name="change_newemail" type="email" placeholder="<?= $this->lang->line('placeholder_new_email'); ?>" required>
                         </div>
                       </div>
                     </div>
@@ -115,7 +115,7 @@
                       <div class="uk-form-controls">
                         <div class="uk-inline uk-width-1-1">
                           <span class="uk-form-icon"><i class="far fa-envelope fa-lg"></i></span>
-                          <input class="uk-input" id="change_renewemail" type="email" placeholder="<?= $this->lang->line('placeholder_confirm_email'); ?>" required>
+                          <input class="uk-input" name="change_renewemail" type="email" placeholder="<?= $this->lang->line('placeholder_confirm_email'); ?>" required>
                         </div>
                       </div>
                     </div>
@@ -125,7 +125,7 @@
                   <div class="uk-form-controls">
                     <div class="uk-inline uk-width-1-1">
                       <span class="uk-form-icon"><i class="fas fa-key fa-lg"></i></span>
-                      <input class="uk-input" id="change_password" type="password" pattern=".{5,16}" placeholder="<?= $this->lang->line('placeholder_password'); ?>" required>
+                      <input class="uk-input" name="change_password" type="password" pattern=".{5,16}" placeholder="<?= $this->lang->line('placeholder_password'); ?>" required>
                     </div>
                   </div>
                 </div>

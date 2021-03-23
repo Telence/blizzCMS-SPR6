@@ -267,7 +267,6 @@ class User extends MX_Controller {
 					redirect(site_url('logout'), 'refresh');
                 else
 					redirect(site_url('settings'), 'refresh');
-
             }
         }
         else
@@ -286,10 +285,37 @@ class User extends MX_Controller {
 
     public function newemail()
     {
-        $newemail = $this->input->post('newemail');
-        $renewemail = $this->input->post('renewemail');
-        $password = $this->input->post('password');
-        echo $this->user_model->changeEmail($newemail, $renewemail, $password);
+        if (!$this->wowgeneral->getMaintenance())
+        redirect(base_url('maintenance'),'refresh');
+
+        if ($this->input->method() == 'post') {
+
+            $this->form_validation->set_rules('change_newemail', 'New email', 'trim|required');
+            $this->form_validation->set_rules('change_renewemail', 'Confirm email', 'trim|required|matches[change_newemail]');
+            $this->form_validation->set_rules('change_password', 'Password',  'trim|required');
+
+            if ($this->form_validation->run() == FALSE)
+            {
+                redirect(base_url('settings'), 'refresh');
+            }
+            else
+            {
+                $email = $this->wowauth->getEmailID($this->session->userdata('wow_sess_id'));
+                $newemail = $this->input->post('change_newemail', TRUE);
+                $password   = $this->input->post('change_password');
+
+                $change = $this->user_model->changeEmail($email, $newemail, $password);
+
+                if ($change)
+                    redirect(site_url('logout'), 'refresh');
+                else
+                    redirect(site_url('settings'), 'refresh');
+            }
+        }
+        else
+        {
+            redirect(base_url(), 'refresh');
+        }
     }
 
     public function newavatar()

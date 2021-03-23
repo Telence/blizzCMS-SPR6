@@ -463,6 +463,45 @@ class User_model extends CI_Model
                 return false;
      }
 
+
+     public function changeEmail($email, $newemail, $password)
+     {
+        $accgame =  $this->auth->where('email', $email)->get('account')->row();
+        $id = $this->session->userdata('wow_sess_id');
+        $emulator = $this->config->item('emulator');
+
+        if (empty($accgame)) {
+            return false;
+        }
+
+        switch ($emulator) {
+            case 'srp6':
+                $validate = ($accgame->verifier === $this->wowauth->game_hash($accgame->username, $password, 'srp6', $accgame->salt));
+                break;
+            case 'hex':
+                $validate = (strtoupper($accgame->v) === $this->wowauth->game_hash($accgame->username, $password, 'hex', $accgame->s));
+                break;
+            case 'old_trinity':
+                $validate = hash_equals(strtoupper($accgame->sha_pass_hash), $this->wowauth->game_hash($accgame->username, $password));
+                break;
+        }
+
+        if (!isset($validate) || !$validate) {
+            return false;
+        }
+
+        $query = $this->db->set('email', $newemail)->where('id', $id)->or_where('email', $email)->update('users');
+
+        if (empty($query))
+            return false;
+        else        
+            $this->auth->set('email', $newemail)->where('id', $id)->or_where('email', $email)->update('account');
+            if ($this->generateHash($emulator, $accgame->username, $password))
+                return true;
+            else
+                return false;
+     }
+
      /**
       * @param mixed $emulator
       * @param mixed $username
