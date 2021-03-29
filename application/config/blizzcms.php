@@ -47,14 +47,24 @@ $config['discord_invitation'] = '';
 $config['realmlist'] = '';
 
 /**
- * Emulator Supported
+ *  Bnet enabled?
  * 
- * true = Legacy Emulator (https://github.com/The-Cataclysm-Preservation-Project/TrinityCore)
- * false = Disabled this feature (BlizzCMS - Old)
- * 
+ *
  */
 
- $config['emulator_legacy'] = false;
+$config['bnet_enabled'] = false; // Default: True for Emulators BattleNet and false for not bnetserver
+
+ /**
+ *  Emulator
+ * 
+ *
+ *  srp6 = For Emulators (SRP6 Compatibility)
+ *  old-trinity =  Trinity Core not SRP6  (Sha_pass_hash Compatibility)
+ *  hex = For emulators Mangos  (HEX6 Compatibility)
+ *  
+ */
+
+$config['emulator'] = 'srp6';
 
 /**
  *
